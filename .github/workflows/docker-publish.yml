@@ -24,17 +24,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Convert repository name to lowercase
+        run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
-          # Das Image wird als ghcr.io/DEIN_NAME/leonie benannt
-          images: ghcr.io/${{ github.repository }}
+          # Nutze den kleingeschriebenen Namen aus dem vorherigen Schritt
+          images: ghcr.io/${{ env.REPO_LC }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}:latest
+          tags: ghcr.io/${{ env.REPO_LC }}:latest
           labels: ${{ steps.meta.outputs.labels }}
