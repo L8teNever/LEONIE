@@ -1,35 +1,41 @@
 services:
-  redirect-server:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  leonie:
+    # Ersetze die Platzhalter durch deinen GitHub-Namen und Repo-Namen in Kleinbuchstaben
+    image: ghcr.io/DEIN_GITHUB_NAME/DEIN_REPO_NAME:latest
 
-    # Alternativ: fertiges Image direkt nutzen (nach docker build -t redirect-server .)
-    # image: redirect-server:latest
-
-    container_name: redirect-server
+    container_name: leonie
 
     ports:
       # HOST_PORT:CONTAINER_PORT
       # Ändere den linken Port um den externen Port zu ändern
       - "8080:8080"
 
-    volumes:
-      # Die config.yml wird direkt ins Verzeichnis /config im Container gemountet.
-      # Änderungen an config.yml werden nach einem Container-Neustart wirksam.
-      - ./config.yml:/config/config.yml:ro
+    environment:
+      CONFIG_YAML: |
+        server:
+          port: 8080
+          host: "0.0.0.0"
+        redirects:
+          - path: /projekte
+            target: https://example.com/projekte
+            code: 301
+          - path: /kontakt
+            target: https://example.com/kontakt
+            code: 302
+          - path: /blog
+            target: https://mein-blog.de
+            code: 301
+        # default: https://example.com
 
     restart: unless-stopped
 
     # Healthcheck: prüft ob der Server noch antwortet
     healthcheck:
-      test: ["CMD", "python", "-c",
-             "import urllib.request; urllib.request.urlopen('http://localhost:8080/health-check-nonexistent', timeout=5)"]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health-check-nonexistent', timeout=5)" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 5s
-
     # Ressourcen begrenzen (optional)
     # deploy:
     #   resources:

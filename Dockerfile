@@ -13,11 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Anwendungscode kopieren
 COPY server.py .
 
-# Config wird per Volume eingebunden (siehe docker-compose.yml)
-# Konfiguration kann also zur Laufzeit geändert werden
-
-# Port freigeben (muss mit config.yml übereinstimmen)
+# Port freigeben (muss mit der Umgebungsvariable übereinstimmen)
 EXPOSE 8080
 
 # Server starten
-CMD ["python", "server.py", "--config", "/config/config.yml"]
+CMD ["python", "server.py"]

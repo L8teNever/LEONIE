@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-Redirect Server
-===============
+LEONIE Redirect Server
+======================
 Ein einfacher Webserver der HTTP-Weiterleitungen basierend auf
-einer YAML-Konfigurationsdatei durchführt.
+einer Umgebungsvariable (CONFIG_YAML) durchführt.
 
 Verwendung:
-    python server.py [--config config.yml]
+    python server.py
 """
 
-import argparse
 import logging
+import os
 import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse
@@ -23,20 +23,22 @@ logging.basicConfig(
     format="%(asctime)s  %(levelname)-8s  %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
-log = logging.getLogger("redirect-server")
+log = logging.getLogger("LEONIE")
 
 
 # ── Config Loader ──────────────────────────────────────────────────────────────
-def load_config(path: str) -> dict:
-    """Lädt und validiert die YAML-Konfigurationsdatei."""
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            cfg = yaml.safe_load(f)
-    except FileNotFoundError:
-        log.error(f"Konfigurationsdatei nicht gefunden: {path}")
+def load_config() -> dict:
+    """Lädt und validiert die Konfiguration aus der Umgebungsvariable CONFIG_YAML."""
+    config_yaml = os.environ.get("CONFIG_YAML")
+    if not config_yaml:
+        log.error("Fehler: Keine CONFIG_YAML Umgebungsvariable definiert!")
         sys.exit(1)
+
+    try:
+        cfg = yaml.safe_load(config_yaml)
+        log.info("Konfiguration aus Umgebungsvariable CONFIG_YAML geladen.")
     except yaml.YAMLError as e:
-        log.error(f"Fehler beim Parsen der Konfiguration: {e}")
+        log.error(f"Fehler beim Parsen der CONFIG_YAML Umgebungsvariable: {e}")
         sys.exit(1)
 
     # Redirect-Map aufbauen: {"/pfad": {"target": "...", "code": 301}}
@@ -129,19 +131,11 @@ def make_handler(config: dict):
 
 # ── Main ───────────────────────────────────────────────────────────────────────
 def main():
-    parser = argparse.ArgumentParser(description="HTTP Redirect Server")
-    parser.add_argument(
-        "--config",
-        default="config.yml",
-        help="Pfad zur YAML-Konfigurationsdatei (Standard: config.yml)",
-    )
-    args = parser.parse_args()
-
     log.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    log.info("  Redirect Server  –  startet …")
+    log.info("  LEONIE Redirect Server  –  startet …")
     log.info("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
-    config = load_config(args.config)
+    config = load_config()
 
     host = config["host"]
     port = config["port"]
