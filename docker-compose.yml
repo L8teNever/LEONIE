@@ -1,7 +1,6 @@
 services:
   leonie:
-    # Ersetze die Platzhalter durch deinen GitHub-Namen und Repo-Namen in Kleinbuchstaben
-    image: ghcr.io/DEIN_GITHUB_NAME/DEIN_REPO_NAME:latest
+    image: ghcr.io/l8tenever/leonie:latest
 
     container_name: leonie
 
