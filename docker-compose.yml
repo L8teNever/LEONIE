@@ -1,0 +1,38 @@
+services:
+  redirect-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # Alternativ: fertiges Image direkt nutzen (nach docker build -t redirect-server .)
+    # image: redirect-server:latest
+
+    container_name: redirect-server
+
+    ports:
+      # HOST_PORT:CONTAINER_PORT
+      # Ändere den linken Port um den externen Port zu ändern
+      - "8080:8080"
+
+    volumes:
+      # Die config.yml wird direkt ins Verzeichnis /config im Container gemountet.
+      # Änderungen an config.yml werden nach einem Container-Neustart wirksam.
+      - ./config.yml:/config/config.yml:ro
+
+    restart: unless-stopped
+
+    # Healthcheck: prüft ob der Server noch antwortet
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8080/health-check-nonexistent', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+    # Ressourcen begrenzen (optional)
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 64M
+    #       cpus: "0.25"
