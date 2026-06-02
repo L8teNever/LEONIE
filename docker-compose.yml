@@ -16,6 +16,9 @@ services:
     #   PORT: 8080
     #   ADMIN_PORT: 8081
 
+    networks:
+      - leonie_net
+
     restart: unless-stopped
 
     healthcheck:
@@ -24,3 +27,10 @@ services:
       timeout: 10s
       retries: 3
       start_period: 5s
+
+networks:
+  leonie_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.255.0.0/24

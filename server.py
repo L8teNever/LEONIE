@@ -239,7 +239,7 @@ label{display:block;font-size:.7rem;color:#505050;margin-bottom:4px}
 input,select{width:100%;background:#0d0d0d;border:1px solid #222;border-radius:6px;padding:7px 10px;color:#d4d4d4;font-size:.875rem;transition:border-color .15s}
 input:focus,select:focus{outline:none;border-color:#3b82f6}
 input::placeholder{color:#333}
-.g-add{display:grid;grid-template-columns:140px 1fr 145px auto;gap:8px;align-items:end}
+.g-add{display:grid;grid-template-columns:140px 1fr auto;gap:8px;align-items:end}
 .g-default{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
 .g-server{display:grid;grid-template-columns:140px auto;gap:8px;align-items:end}
 button{padding:7px 15px;border:none;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:500;transition:background .15s;white-space:nowrap}
@@ -292,16 +292,7 @@ tr:last-child td{border-bottom:none}
     <div class="card-title">Neue Weiterleitung <span id="forPort" style="color:#3b82f6"></span></div>
     <div class="g-add">
       <div><label>Pfad</label><input type="text" id="newPath" class="mono" placeholder="/test"></div>
-      <div><label>Ziel-URL</label><input type="url" id="newTarget" placeholder="https://..."></div>
-      <div>
-        <label>Typ</label>
-        <select id="newCode">
-          <option value="302">302 – Temporär</option>
-          <option value="301">301 – Permanent</option>
-          <option value="307">307 – Temporär</option>
-          <option value="308">308 – Permanent</option>
-        </select>
-      </div>
+      <div style="grid-column:span 2"><label>Ziel-URL</label><input type="url" id="newTarget" placeholder="https://..."></div>
       <button class="btn-blue" onclick="addRedirect()">Hinzufügen</button>
     </div>
   </div>
@@ -420,7 +411,7 @@ async function delServer(port) {
 async function addRedirect() {
   const path   = document.getElementById('newPath').value.trim();
   const target = document.getElementById('newTarget').value.trim();
-  const code   = parseInt(document.getElementById('newCode').value);
+  const code   = 302;
   if (!path)            { toast('Pfad fehlt', 1); return; }
   if (!path.startsWith('/')) { toast('Pfad muss mit / beginnen', 1); return; }
   if (!target)          { toast('Ziel-URL fehlt', 1); return; }
