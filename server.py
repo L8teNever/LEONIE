@@ -374,7 +374,7 @@ function renderSelected() {
     '<td><span class="path mono">' + esc(r.path) + '</span></td>' +
     '<td><span class="target">' + esc(r.target) + '</span></td>' +
     '<td><span class="chip">' + r.code + '</span></td>' +
-    '<td><button class="btn-row-del" onclick="delRedirect(\'' + esc2(r.path) + '\')">Löschen</button></td>' +
+    '<td><button class="btn-row-del" data-path="' + esc(r.path) + '" onclick="delRedirect(this.dataset.path)">Löschen</button></td>' +
     '</tr>'
   ).join('');
 }
@@ -458,8 +458,7 @@ function toast(msg, err) {
   setTimeout(() => t.style.display = 'none', 2200);
 }
 
-function esc(s)  { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function esc2(s) { return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 loadAll();
 </script>
