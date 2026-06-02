@@ -5,39 +5,22 @@ services:
     container_name: leonie
 
     ports:
-      # HOST_PORT:CONTAINER_PORT
-      # Ändere den linken Port um den externen Port zu ändern
-      - "8080:8080"
+      - "8080:8080"   # Redirect-Server
+      - "8081:8081"   # Admin-Panel
 
-    environment:
-      CONFIG_YAML: |
-        server:
-          port: 8080
-          host: "0.0.0.0"
-        redirects:
-          - path: /projekte
-            target: https://example.com/projekte
-            code: 301
-          - path: /kontakt
-            target: https://example.com/kontakt
-            code: 302
-          - path: /blog
-            target: https://mein-blog.de
-            code: 301
-        # default: https://example.com
+    volumes:
+      - ./data:/data  # Weiterleitungen werden hier gespeichert
+
+    # Optional: Ports anpassen
+    # environment:
+    #   PORT: 8080
+    #   ADMIN_PORT: 8081
 
     restart: unless-stopped
 
-    # Healthcheck: prüft ob der Server noch antwortet
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health-check-nonexistent', timeout=5)" ]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/', timeout=5)"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 5s
-    # Ressourcen begrenzen (optional)
-    # deploy:
-    #   resources:
-    #     limits:
-    #       memory: 64M
-    #       cpus: "0.25"
