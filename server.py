@@ -328,8 +328,13 @@ let _allServers = [];
 let _selected = null;
 
 async function loadAll() {
-  const res = await fetch('/api/servers');
-  _allServers = await res.json();
+  try {
+    const res = await fetch('/api/servers');
+    _allServers = await res.json();
+  } catch(e) {
+    setTimeout(loadAll, 2000);
+    return;
+  }
   renderTabs();
   if (_selected === null || !_allServers.find(s => s.port === _selected)) {
     _selected = _allServers[0]?.port ?? null;
@@ -466,10 +471,12 @@ loadAll();
 # ── Admin Handler ──────────────────────────────────────────────────────────────
 def make_admin_handler():
     class AdminHandler(BaseHTTPRequestHandler):
+        protocol_version = "HTTP/1.1"
+
         def do_GET(self):
             routes = {
-                "/":       self._serve_html,
-                "/admin":  self._serve_html,
+                "/":            self._serve_html,
+                "/admin":       self._serve_html,
                 "/api/servers": self._api_servers,
             }
             h = routes.get(self.path)
@@ -493,11 +500,16 @@ def make_admin_handler():
                 self._serve(404, "text/plain", b"Not found")
 
         def _serve(self, code: int, ctype: str, body: bytes):
-            self.send_response(code)
-            self.send_header("Content-Type", ctype)
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
+            try:
+                self.send_response(code)
+                self.send_header("Content-Type", ctype)
+                self.send_header("Content-Length", str(len(body)))
+                self.send_header("Connection", "close")
+                self.end_headers()
+                self.wfile.write(body)
+                self.wfile.flush()
+            except (BrokenPipeError, ConnectionResetError):
+                pass
 
         def _serve_html(self):
             self._serve(200, "text/html; charset=utf-8", ADMIN_HTML.encode())
